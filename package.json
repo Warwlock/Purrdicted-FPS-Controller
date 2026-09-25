@@ -1,0 +1,29 @@
+{
+  "name": "com.warwlock.purrdictedfpscontroller",
+  "displayName": "Purrdicted FPS Controller",
+  "version": "1.0.0",
+  "unity": "2021.3",
+  "unityRelease": "45f2",
+  "description": "PurrNet Purrdiction FPS Character Controller for general purpose. Uses Input System and Cinemachine. Requires PurrNet and Purrdiction.",
+  "documentationUrl": "",
+  "license": "MIT",
+  "licensesUrl": "https://github.com/Warwlock/Purrdicted-FPS-Controller/blob/main/LICENSE.md",
+  "changelogUrl": "https://github.com/Warwlock/Purrdicted-FPS-Controller/blob/main/CHANGELOG.md",
+  "author": "Warwlock",
+  "keywords": [
+    "unity",
+    "Networking",
+    "FPS",
+    "PurrNet"
+  ],
+  "bugs": {
+    "url": "https://github.com/Warwlock/Purrdicted-FPS-Controller/issues"
+  },
+  "samples": [
+    {
+      "displayName": "Example Prefab Setup",
+      "description": "A demo scene containing example setup.",
+      "path": "Samples~/ExamplePrefabSetup"
+    }
+  ]
+}
