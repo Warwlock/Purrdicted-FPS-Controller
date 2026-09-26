@@ -980,6 +980,7 @@ MonoBehaviour:
   _maxConnections: 100
   _address: 127.0.0.1
   _timeoutInSeconds: 5
+  _useNativeSockets: 1
   _networkSimulation:
     includeInBuild: 0
     simulateLatency: 0
@@ -1236,7 +1237,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e8a34f9d1cbdb44baac81a09b3096786, type: 2}
+  - {fileID: 2100000, guid: 0777c982e24d0bbe6a0cc683021eb296, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1490,6 +1491,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
