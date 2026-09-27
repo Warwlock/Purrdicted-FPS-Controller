@@ -1,7 +1,7 @@
 using UnityEngine;
 using Unity.Cinemachine;
 
-namespace Warwlock.Prediction.PlayerController
+namespace Warwlock.PlayerController
 {
     public class CameraController : MonoBehaviour
     {

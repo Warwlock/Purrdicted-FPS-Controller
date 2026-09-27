@@ -2,7 +2,7 @@ using PurrNet.Prediction;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Warwlock.Prediction.PlayerController
+namespace Warwlock.PlayerController
 {
     public class PlayerMovement : PredictedIdentity<PlayerMovement.Input, PlayerMovement.State>
     {

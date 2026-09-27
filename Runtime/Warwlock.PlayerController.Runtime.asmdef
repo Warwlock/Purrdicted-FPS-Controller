@@ -1,5 +1,5 @@
 {
-    "name": "Warwlock.Prediction.PlayerController.Runtime",
+    "name": "Warwlock.PlayerController.Runtime",
     "rootNamespace": "",
     "references": [
         "GUID:4ecd904f72132b747bbe9d8dc699df89",
