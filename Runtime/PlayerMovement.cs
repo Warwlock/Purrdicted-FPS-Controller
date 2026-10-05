@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace Warwlock.PlayerController
 {
-    public class PlayerMovement : PredictedIdentity<PlayerMovement.Input, PlayerMovement.State>
+    public class PlayerMovement : PredictedIdentity<PlayerMovement.Input, PlayerMovement.State>, IMovement
     {
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 5f;
@@ -13,7 +13,6 @@ namespace Warwlock.PlayerController
         [SerializeField] private float gravity = -9.81f;
         [SerializeField] private float groundCheckDistance = 0.2f;
         [SerializeField] private CharacterController characterController;
-        [SerializeField] private Animator characterAnimator;
 
         [Header("Player Camera")]
         [SerializeField] private CameraController cameraController;
@@ -23,40 +22,57 @@ namespace Warwlock.PlayerController
         [SerializeField] private InputActionReference jumpAction;
         [SerializeField] private InputActionReference sprintAction;
 
+
+        // View state cached variables
+        private bool _isGrounded;
+        private bool _isJumped;
+        private Vector3 _movementDirectionSpeed;
+
+        public bool IsGrounded => _isGrounded;
+        public bool IsJumped => _isJumped;
+        public Vector3 MovementDirectionSpeed => _movementDirectionSpeed;
+
         protected override void LateAwake()
         {
             if (isOwner)
                 cameraController.Init();
         }
 
+        public void SetMovementEnabledSimulate(bool isEnabled) => currentState.isMovementEnabled = isEnabled;
+        
         protected override void Simulate(Input input, ref State state, float delta)
         {
-            HandleRotation(input);
-            HandleMovement(input, ref state, delta);
+            if (currentState.isMovementEnabled)
+            {
+                HandleRotation(input);
+                HandleMovement(input, ref state, delta);
+            }
         }
 
         private void HandleMovement(Input input, ref State state, float delta)
         {
-            bool isGrounded = IsGrounded();
-            if (isGrounded && state.velocity.y < 0)
+            bool isGrounded = GetIsGrounded();
+            state.isGrounded = isGrounded;
+            if (isGrounded && state.verticalVelocity < 0)
             {
-                state.velocity.y = 0f;
+                state.isJumped = false;
+                state.verticalVelocity = -1f;
             }
 
             Vector3 moveDirection = transform.right * input.moveDirection.x + transform.forward * input.moveDirection.y;
             moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
 
-            state.isMoving = moveDirection.sqrMagnitude > 0.001f;
-
             float currentSpeed = input.sprint ? sprintSpeed : moveSpeed;
+            state.movementDirectionSpeed = moveDirection * currentSpeed;
 
             if (input.jump && isGrounded)
             {
-                state.velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+                state.isJumped = true;
+                state.verticalVelocity = Mathf.Sqrt(jumpForce * -2f * gravity);
             }
 
-            state.velocity.y += gravity * delta;
-            Vector3 finalMove = (moveDirection * currentSpeed) + (state.velocity.y * Vector3.up);
+            state.verticalVelocity += gravity * delta;
+            Vector3 finalMove = (moveDirection * currentSpeed) + (state.verticalVelocity * Vector3.up);
             characterController.Move(finalMove * delta);
         }
 
@@ -69,23 +85,22 @@ namespace Warwlock.PlayerController
                 transform.rotation = Quaternion.LookRotation(camForward.normalized);
         }
 
-        private bool IsGrounded()
+        private bool GetIsGrounded()
         {
             return Physics.Raycast(transform.position + Vector3.up * 0.03f, Vector3.down, groundCheckDistance);
         }
 
         protected override void UpdateView(State viewState, State? verified)
         {
-            if (!characterAnimator) return;
-            
             if (!isOwner && !verified.HasValue) return;
             State state = isOwner ? viewState : verified.Value;
 
-            characterAnimator.SetBool("isMoving", state.isMoving);
-
+            _isJumped = state.isJumped;
+            _isGrounded = state.isGrounded;
+            _movementDirectionSpeed = state.movementDirectionSpeed;
         }
 
-
+        // Inputs
         protected override void GetFinalInput(ref Input input)
         {
             input.moveDirection = moveAction.action.ReadValue<Vector2>();
@@ -112,12 +127,24 @@ namespace Warwlock.PlayerController
 
         public struct State : IPredictedData<State>
         {
-            public Vector3 velocity;
+            public float verticalVelocity;
+            public Vector3 movementDirectionSpeed;
+            public bool isGrounded;
+            public bool isJumped;
+            public bool isMovementEnabled;
 
-            public bool isMoving;
             public void Dispose()
             {
 
+            }
+
+            public override string ToString()
+            {
+                string result = $"velocity: {verticalVelocity}";
+                result += $"\n isGrounded: {isGrounded}";
+                result += $"\n isJumped: {isJumped}";
+
+                return result;
             }
         }
 

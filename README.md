@@ -10,7 +10,7 @@ Go to package manager and add package via git: `https://github.com/Warwlock/Purr
 
 ## How to use
 
-Install `Example Prefab Setup` from samples.
+Install **`Example Prefab Setup`** from samples.
 
 ## What is currently included
 * Input System (Uses InputActionReference variable)
@@ -21,13 +21,64 @@ Install `Example Prefab Setup` from samples.
 
 ## Important Things to Consider
 
-### Camera
-* Camera is inside the visual component of character, so it will move smoothly with character. But rotating camera also rotates character and this cause infinite feedback, causing endlessly rotate. To fix it we set **`Reference Frame`** to **`World`** inside **`Cinemachine Pan Tilt`** component.
+### Camera Setup
+* The camera is placed inside the visual component of the character for smooth movement. However, rotating the camera also rotates the character, which can cause an infinite rotation feedback loop. 
+* **Fix:** Ensure **`Reference Frame`** is set to **`World`** inside the **`Cinemachine Pan Tilt`** component.
 
-### Animations
-* Animation is not networked so clients will see different keyframes at their screen but the animation will look same.
+### Animations & Network
+* Animations are **not networked**. Clients will see slightly different keyframes on their screens, but the overall animation states (running, idle) will look identical because they are driven by the predicted movement data.
 
-### Prefab Setup and Inputs
-* Be sure you have your `Example Prefab` or `Your Own Prefab` inside a folder that is referenced by `Predicted Prefabs` asset. Prediction manager asks for one and if you don't provide it, it will not spawn your prefab. And like I said, put your prefabs inside the folder of `Predicted Prefabs` asset is referencing.
+### Prefab Setup & Inputs
+* **Predicted Prefabs:** Ensure your Player Prefab is inside a folder referenced by the `Predicted Prefabs` asset. If not, PurrNet will fail to spawn it.
+* **Input Asset:** The Example Prefab uses a `Player Input` component referencing `PurrdictedCharacterInputs.inputaction`. If your game uses a project-wide input asset, you can remove this component—just remember to update the `Input Action References` inside the `Player Movement` script.
 
-* Example Prefab has `Player Input` component for enabling `PurrdictedCharacterInputs.inputaction` asset. If you are using project-wide input action asset, then you can remove this component. And don't forget to change `Input Action References` inside the `Player Movement` component.
+
+## 🛠️ Advanced Integration (The Coordinator Pattern)
+
+To keep this package clean, `PlayerMovement` does not know about inventories, health, or interactables.
+
+If you want to disable movement when the player interacts with an object (from the Interaction System package), create a **Bridge/Coordinator** script in your Main Game Project:
+
+**Note:** Only call `Simulate` functions within `Simulate` loop. Otherwise unwanted behaviour can happen.
+
+```csharp
+using UnityEngine;
+using Warwlock.FPSController;
+using Warwlock.Interaction;
+
+// Put this on your Player Prefab
+public class PlayerSystemsCoordinator : MonoBehaviour
+{
+    private PlayerMovement movement;
+    private PlayerInteractor interactor;
+
+    private void Awake()
+    {
+        movement = GetComponent<PlayerMovement>();
+        interactor = GetComponent<PlayerInteractor>();
+    }
+
+    private void OnEnable()
+    {
+        // Listen to the interaction package
+        interactor.OnInteractSimulate += HandleInteractionSimulate;
+    }
+
+    private void OnDisable()
+    {
+        interactor.OnInteractSimulate -= HandleInteractionSimulate;
+    }
+
+    private void HandleInteractionSimulate(InteractionInfo info)
+    {
+        // Tell the movement package to stop
+        movement.SetMovementEnabledSimulate(false);
+        
+        // Restore movement after 1 second
+        Invoke(nameof(RestoreMovement), 1.0f);
+    }
+
+    private void RestoreMovement() => movement.SetMovementEnabledSimulate(true);
+}
+```
+
