@@ -39,7 +39,13 @@ namespace Warwlock.PlayerController
         }
 
         public void SetMovementEnabledSimulate(bool isEnabled) => currentState.isMovementEnabled = isEnabled;
-        
+
+        protected override State GetInitialState() =>
+            new State()
+            {
+                isMovementEnabled = true
+            };
+
         protected override void Simulate(Input input, ref State state, float delta)
         {
             if (currentState.isMovementEnabled)
