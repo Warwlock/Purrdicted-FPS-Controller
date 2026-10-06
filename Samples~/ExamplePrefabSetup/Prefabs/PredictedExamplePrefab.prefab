@@ -194,7 +194,7 @@ MonoBehaviour:
   _graphics: {fileID: 1496306248484684209}
   _floatAccuracy: 1
   _interpolationSettings: {fileID: 11400000, guid: 4a8aa8e44e23cfd4a8d4387ef3f36173, type: 2}
-  _unparentGraphics: 1
+  _unparentGraphics: 0
   _characterControllerPatch: 1
   _softCorrection:
     correctionRate: 8
