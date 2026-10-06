@@ -35,6 +35,41 @@ Install **`Example Prefab Setup`** from samples.
 
 ## 🛠️ Advanced Integration (The Coordinator Pattern)
 
+### Using IMovement
+
+If you want to get data from movement script use `GetComponent<IMovement>`.
+
+```csharp
+public class PlayerAnimationController : MonoBehaviour
+{
+    private IMovement movement;
+    private Animator anim;
+
+    private void Awake()
+    {
+        movement = GetComponent<IMovement>(); // Or assign from inspector
+        anim = GetComponent<Animator>();
+    }
+
+    private void Update()
+    {
+        if (movement == null) return;
+
+        // Drive the animator based on the interface properties
+        anim.SetFloat("Speed", movement.MovementDirectionSpeed.magnitude);
+        anim.SetBool("IsGrounded", movement.IsGrounded);
+        anim.SetBool("IsJumped", movement.IsJumped);
+        
+        // For a 2D Blend Tree (MoveX, MoveZ)
+        anim.SetFloat("MoveX", movement.MovementDirectionSpeed.x);
+        anim.SetFloat("MoveZ", movement.MovementDirectionSpeed.y);
+    }
+}
+```
+
+
+### Bridge/Coordinator
+
 To keep this package clean, `PlayerMovement` does not know about inventories, health, or interactables.
 
 If you want to disable movement when the player interacts with an object (from the Interaction System package), create a **Bridge/Coordinator** script in your Main Game Project:
